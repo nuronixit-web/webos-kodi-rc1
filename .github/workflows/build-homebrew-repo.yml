@@ -1,0 +1,83 @@
+name: Build Homebrew repository
+
+on:
+  push:
+    paths:
+      - '.github/workflows/build-homebrew-repo.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build manifest and repository index
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          IPK_URL='https://mirrors.kodi.tv/nightlies/webos/master/org.xbmc.kodi_20260927-28ea2eac-master_arm.ipk'
+          ICON_URL='https://raw.githubusercontent.com/xbmc/xbmc/master/tools/webOS/packaging/icon.png'
+          MANIFEST_URL='https://raw.githubusercontent.com/nuronixit-web/webos-kodi-rc1/main/org.xbmc.kodi.manifest.json'
+
+          curl -fL --retry 3 --retry-delay 2 "$IPK_URL" -o kodi.ipk
+          SHA256=$(sha256sum kodi.ipk | awk '{print $1}')
+          SIZE=$(stat -c%s kodi.ipk)
+
+          cat > org.xbmc.kodi.manifest.json <<EOF
+          {
+            "id": "org.xbmc.kodi",
+            "version": "21.90.901",
+            "type": "native",
+            "title": "Kodi 22 RC1",
+            "appDescription": "Kodi 22 Piers RC1 for webOS, official Team Kodi build from commit 28ea2eac.",
+            "iconUri": "$ICON_URL",
+            "sourceUrl": "https://github.com/xbmc/xbmc",
+            "rootRequired": false,
+            "ipkUrl": "$IPK_URL",
+            "ipkHash": {
+              "sha256": "$SHA256"
+            },
+            "ipkSize": $SIZE
+          }
+          EOF
+
+          cat > repo.json <<EOF
+          {
+            "paging": {
+              "page": 1,
+              "count": 1,
+              "maxPage": 1,
+              "itemsTotal": 1
+            },
+            "packages": [
+              {
+                "id": "org.xbmc.kodi",
+                "title": "Kodi 22 RC1",
+                "iconUri": "$ICON_URL",
+                "manifestUrl": "$MANIFEST_URL"
+              }
+            ]
+          }
+          EOF
+
+          rm -f kodi.ipk
+
+      - name: Commit generated files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add org.xbmc.kodi.manifest.json repo.json
+          if git diff --cached --quiet; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          git commit -m 'Generate Kodi 22 RC1 Homebrew repository'
+          git push
