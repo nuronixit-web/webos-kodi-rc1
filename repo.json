@@ -1,0 +1,16 @@
+{
+  "paging": {
+    "page": 1,
+    "count": 1,
+    "maxPage": 1,
+    "itemsTotal": 1
+  },
+  "packages": [
+    {
+      "id": "org.xbmc.kodi",
+      "title": "Kodi 22 RC1",
+      "iconUri": "https://raw.githubusercontent.com/xbmc/xbmc/master/tools/webOS/packaging/icon.png",
+      "manifestUrl": "https://raw.githubusercontent.com/nuronixit-web/webos-kodi-rc1/main/org.xbmc.kodi.manifest.json"
+    }
+  ]
+}

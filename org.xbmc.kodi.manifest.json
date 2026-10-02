@@ -1,0 +1,15 @@
+{
+  "id": "org.xbmc.kodi",
+  "version": "21.90.901",
+  "type": "native",
+  "title": "Kodi 22 RC1",
+  "appDescription": "Kodi 22 Piers RC1 for webOS, official Team Kodi build from commit 28ea2eac.",
+  "iconUri": "https://raw.githubusercontent.com/xbmc/xbmc/master/tools/webOS/packaging/icon.png",
+  "sourceUrl": "https://github.com/xbmc/xbmc",
+  "rootRequired": false,
+  "ipkUrl": "https://mirrors.kodi.tv/nightlies/webos/master/org.xbmc.kodi_20260927-28ea2eac-master_arm.ipk",
+  "ipkHash": {
+    "sha256": "e66e803063dde2c9af612bd4617dc40030fbd02b493fd6cced4d74b92674669d"
+  },
+  "ipkSize": 99773352
+}
