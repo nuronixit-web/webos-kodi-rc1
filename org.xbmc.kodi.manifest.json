@@ -7,7 +7,7 @@
   "iconUri": "https://raw.githubusercontent.com/xbmc/xbmc/master/tools/webOS/packaging/icon.png",
   "sourceUrl": "https://github.com/xbmc/xbmc",
   "rootRequired": false,
-  "ipkUrl": "https://mirrors.kodi.tv/nightlies/webos/master/org.xbmc.kodi_20260927-28ea2eac-master_arm.ipk",
+  "ipkUrl": "https://github.com/nuronixit-web/webos-kodi-rc1/releases/download/v22.0-rc1-webos/org.xbmc.kodi_20260927-28ea2eac-master_arm.ipk",
   "ipkHash": {
     "sha256": "e66e803063dde2c9af612bd4617dc40030fbd02b493fd6cced4d74b92674669d"
   },
