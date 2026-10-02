@@ -16,18 +16,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Download official Kodi RC1 build
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC_URL='https://mirrors.kodi.tv/nightlies/webos/master/org.xbmc.kodi_20260927-28ea2eac-master_arm.ipk'
+          FILE='org.xbmc.kodi_20260927-28ea2eac-master_arm.ipk'
+          curl -fL --retry 5 --retry-delay 3 "$SRC_URL" -o "$FILE"
+          echo "IPK_FILE=$FILE" >> "$GITHUB_ENV"
+          echo "SHA256=$(sha256sum "$FILE" | awk '{print $1}')" >> "$GITHUB_ENV"
+          echo "IPK_SIZE=$(stat -c%s "$FILE")" >> "$GITHUB_ENV"
+
+      - name: Publish IPK as GitHub release asset
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG='v22.0-rc1-webos'
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --title 'Kodi 22 RC1 for webOS' --notes 'Official Team Kodi webOS RC1 build mirrored here only so Homebrew Channel can download it reliably.'
+          fi
+          gh release upload "$TAG" "$IPK_FILE" --clobber
+
       - name: Build manifest and repository index
         shell: bash
         run: |
           set -euo pipefail
-
-          IPK_URL='https://mirrors.kodi.tv/nightlies/webos/master/org.xbmc.kodi_20260927-28ea2eac-master_arm.ipk'
+          IPK_URL="https://github.com/nuronixit-web/webos-kodi-rc1/releases/download/v22.0-rc1-webos/$IPK_FILE"
           ICON_URL='https://raw.githubusercontent.com/xbmc/xbmc/master/tools/webOS/packaging/icon.png'
           MANIFEST_URL='https://raw.githubusercontent.com/nuronixit-web/webos-kodi-rc1/main/org.xbmc.kodi.manifest.json'
-
-          curl -fL --retry 3 --retry-delay 2 "$IPK_URL" -o kodi.ipk
-          SHA256=$(sha256sum kodi.ipk | awk '{print $1}')
-          SIZE=$(stat -c%s kodi.ipk)
 
           cat > org.xbmc.kodi.manifest.json <<EOF
           {
@@ -43,7 +61,7 @@ jobs:
             "ipkHash": {
               "sha256": "$SHA256"
             },
-            "ipkSize": $SIZE
+            "ipkSize": $IPK_SIZE
           }
           EOF
 
@@ -66,8 +84,6 @@ jobs:
           }
           EOF
 
-          rm -f kodi.ipk
-
       - name: Commit generated files
         shell: bash
         run: |
@@ -79,5 +95,5 @@ jobs:
             echo 'No changes to commit.'
             exit 0
           fi
-          git commit -m 'Generate Kodi 22 RC1 Homebrew repository'
+          git commit -m 'Use GitHub release asset for Kodi 22 RC1'
           git push
